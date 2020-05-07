@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp2.2;net47</TargetFrameworks>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>Tests</RootNamespace>
+    <AssemblyName>Tests.ECSContainerMetadata</AssemblyName>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="nunit" Version="3.12.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.16.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Configuration\ECSContainerMetadata\ECSContainerMetadata.csproj" />
+  </ItemGroup>
+
+</Project>
