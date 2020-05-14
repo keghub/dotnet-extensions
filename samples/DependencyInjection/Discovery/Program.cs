@@ -5,7 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace DiscoveryAdapter
+namespace Discovery
 {
     class Program
     {
@@ -13,7 +13,7 @@ namespace DiscoveryAdapter
         {
             var settings = new Dictionary<string, string>
             {
-                ["Discovery:ProbeEndpoint"] = "net.tcp://localhost:8001/Probe-Adapter"
+                ["Discovery:ProbeEndpoint"] = "net.tcp://localhost:8001/Probe"
             };
 
             var configurationBuilder = new ConfigurationBuilder();
@@ -25,15 +25,12 @@ namespace DiscoveryAdapter
 
             services.AddLogging(l => l.AddConsole());
 
-            services.AddServiceDiscoveryAdapter(configuration.GetSection("Discovery"), o =>
+            services.AddServiceDiscovery(configuration.GetSection("Discovery"), o =>
             {
-                o.ConfigureDiscoveryAdapterBinding = binding =>
-                {
-                    binding.Security.Mode = SecurityMode.None;
-                };
+                o.DiscoveryBinding = new NetTcpBinding(SecurityMode.None);
             });
 
-            services.DiscoverServiceUsingAdapter<IMyService>(binding => binding.Security.Mode = SecurityMode.None);
+            services.DiscoverNetTcpService<IMyService>(binding => binding.Security.Mode = SecurityMode.None);
 
             var serviceProvider = services.BuildServiceProvider();
 
@@ -52,7 +49,7 @@ namespace DiscoveryAdapter
         }
     }
 
-    [ServiceContract(Namespace = "http://samples.educations.com/", Name = "MyService")]
+    [ServiceContract(Namespace="http://samples.educations.com/", Name="MyService")]
     public interface IMyService
     {
         [OperationContract]
