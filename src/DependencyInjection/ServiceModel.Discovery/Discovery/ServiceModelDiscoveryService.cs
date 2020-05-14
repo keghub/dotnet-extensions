@@ -12,61 +12,57 @@ namespace EMG.Extensions.DependencyInjection.Discovery
 {
     public class ServiceModelDiscoveryOptions
     {
-        public Binding DiscoveryBinding { get; set; }
+        public Func<Binding> DiscoveryBindingFactory { get; set; }
 
         public Uri ProbeEndpoint { get; set; }
-
-        public bool IsValid() => string.Equals(DiscoveryBinding.Scheme, ProbeEndpoint.Scheme);
     }
 
     public class ServiceModelDiscoveryService : IDiscoveryService
     {
+        private readonly IServiceModelDiscoveryClientWrapper _discoveryClient;
+        private readonly IChannelFactoryWrapper _channelFactory;
         private readonly ILogger<ServiceModelDiscoveryService> _logger;
         private readonly ServiceModelDiscoveryOptions _options;
 
-        public ServiceModelDiscoveryService(IOptions<ServiceModelDiscoveryOptions> options, ILogger<ServiceModelDiscoveryService> logger)
+        public ServiceModelDiscoveryService(IServiceModelDiscoveryClientWrapper discoveryClient, IChannelFactoryWrapper channelFactory, IOptions<ServiceModelDiscoveryOptions> options, ILogger<ServiceModelDiscoveryService> logger)
         {
+            _discoveryClient = discoveryClient ?? throw new ArgumentNullException(nameof(discoveryClient));
+            _channelFactory = channelFactory ?? throw new ArgumentNullException(nameof(channelFactory));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
-
-            if (!_options.IsValid())
-            {
-                throw new ArgumentException("ProbeEndpoint is not valid for the given DiscoveryBinding", nameof(ServiceModelDiscoveryOptions.ProbeEndpoint));
-            }
         }
 
         public TService Discover<TService>(Binding binding) where TService : class
         {
+            var discoveryBinding = _options.DiscoveryBindingFactory.Invoke();
+
+            if (!string.Equals(discoveryBinding.Scheme, _options.ProbeEndpoint.Scheme))
+            {
+                throw new ArgumentException("ProbeEndpoint is not valid for the given DiscoveryBinding", nameof(ServiceModelDiscoveryOptions.ProbeEndpoint));
+            }
+
             var probeEndpointAddress = new EndpointAddress(_options.ProbeEndpoint);
-            var discoveryEndpoint = new DiscoveryEndpoint(_options.DiscoveryBinding, probeEndpointAddress);
-            
-            var discoveryClient = new DiscoveryClient(discoveryEndpoint);
+            var discoveryEndpoint = new DiscoveryEndpoint(discoveryBinding, probeEndpointAddress);
 
             try
             {
                 var criteria = new FindCriteria(typeof(TService));
 
-                var response = discoveryClient.Find(criteria);
+                var endpoints = _discoveryClient.FindEndpoints(discoveryEndpoint, criteria);
 
-                discoveryClient.Close();
-
-                var preferredEndpoint = response.Endpoints.FirstOrDefault(e => e.Address.Uri.Scheme == binding.Scheme);
+                var preferredEndpoint = endpoints?.FirstOrDefault(e => e.Address.Uri.Scheme == binding.Scheme);
 
                 if (preferredEndpoint != null)
                 {
-                    var channel = ChannelFactory<TService>.CreateChannel(binding, preferredEndpoint.Address);
-
-                    return channel;
+                    return _channelFactory.CreateChannel<TService>(binding, preferredEndpoint.Address);
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"An error occurred while resolving the service {typeof(TService).Name}");
-                discoveryClient.InnerChannel.Abort();
             }
 
             return null;
         }
     }
-
 }

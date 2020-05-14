@@ -25,10 +25,8 @@ namespace Discovery
 
             services.AddLogging(l => l.AddConsole());
 
-            services.AddServiceDiscovery(configuration.GetSection("Discovery"), o =>
-            {
-                o.DiscoveryBinding = new NetTcpBinding(SecurityMode.None);
-            });
+            services.AddServiceDiscovery(() => new NetTcpBinding(SecurityMode.None))
+                    .ConfigureServiceDiscovery(configuration.GetSection("Discovery"));
 
             services.DiscoverNetTcpService<IMyService>(binding => binding.Security.Mode = SecurityMode.None);
 

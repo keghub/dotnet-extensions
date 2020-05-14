@@ -11,16 +11,59 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class ServiceCollectionDiscoveryExtensions
     {
-        public static IServiceCollection AddServiceDiscovery(this IServiceCollection services, IConfigurationSection configurationSection, Action<ServiceModelDiscoveryOptions> configureOptions = null)
+        public static IServiceCollection ConfigureServiceDiscovery(this IServiceCollection services, IConfigurationSection configurationSection)
         {
-            services.TryAddSingleton<IDiscoveryService, ServiceModelDiscoveryService>();
+            if (services == null)
+            {
+                throw new ArgumentNullException(nameof(services));
+            }
+
+            if (configurationSection == null)
+            {
+                throw new ArgumentNullException(nameof(configurationSection));
+            }
 
             services.Configure<ServiceModelDiscoveryOptions>(configurationSection);
 
-            if (configureOptions != null)
+            return services;
+        }
+
+        public static IServiceCollection ConfigureServiceDiscovery(this IServiceCollection services, Action<ServiceModelDiscoveryOptions> configureOptions)
+        {
+            if (services == null)
             {
-                services.Configure<ServiceModelDiscoveryOptions>(configureOptions);
+                throw new ArgumentNullException(nameof(services));
             }
+
+            if (configureOptions == null)
+            {
+                throw new ArgumentNullException(nameof(configureOptions));
+            }
+
+            services.Configure<ServiceModelDiscoveryOptions>(configureOptions);
+
+            return services;
+        }
+
+        public static IServiceCollection AddServiceDiscovery(this IServiceCollection services, Func<Binding> bindingFactory)
+        {
+            if (services == null)
+            {
+                throw new ArgumentNullException(nameof(services));
+            }
+
+            if (bindingFactory == null)
+            {
+                throw new ArgumentNullException(nameof(bindingFactory));
+            }
+
+            services.AddOptions();
+
+            services.TryAddSingleton<IChannelFactoryWrapper, ChannelFactoryWrapper>();
+            
+            services.TryAddSingleton<IServiceModelDiscoveryClientWrapper, ServiceModelDiscoveryClientWrapper>();
+
+            services.TryAddSingleton<IDiscoveryService, ServiceModelDiscoveryService>();
 
             return services;
         }

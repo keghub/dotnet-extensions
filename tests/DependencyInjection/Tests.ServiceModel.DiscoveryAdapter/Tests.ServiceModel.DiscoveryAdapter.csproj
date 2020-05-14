@@ -4,7 +4,7 @@
     <TargetFrameworks>netcoreapp2.2;net48</TargetFrameworks>
     <IsPackable>false</IsPackable>
     <RootNamespace>Tests</RootNamespace>
-    <AssemblyName>Tests.ECSContainerMetadata</AssemblyName>
+    <AssemblyName>Tests.ServiceModel.DiscoveryAdapter</AssemblyName>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Configuration\ECSContainerMetadata\ECSContainerMetadata.csproj" />
+    <ProjectReference Include="..\..\..\src\DependencyInjection\ServiceModel.DiscoveryAdapter\ServiceModel.DiscoveryAdapter.csproj" />
   </ItemGroup>
 
 </Project>
