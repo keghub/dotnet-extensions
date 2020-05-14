@@ -48,6 +48,8 @@ namespace EMG.Extensions.DependencyInjection.Discovery
 
                 var endpoint = channel.Discover(serviceQualifiedName);
 
+                (channel as ICommunicationObject).Close();
+
                 if (endpoint != null)
                 {
                     endpointAddress = new EndpointAddress(endpoint);
@@ -62,11 +64,7 @@ namespace EMG.Extensions.DependencyInjection.Discovery
             {
                 return false;
             }
-            finally
-            {
-                (channel as ICommunicationObject).Close();
-            }
-
+            
             return false;
         }
 

@@ -5,6 +5,7 @@ using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Discovery;
 using System.Xml;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace EMG.Extensions.DependencyInjection.Discovery
@@ -20,10 +21,12 @@ namespace EMG.Extensions.DependencyInjection.Discovery
 
     public class ServiceModelDiscoveryService : IDiscoveryService
     {
+        private readonly ILogger<ServiceModelDiscoveryService> _logger;
         private readonly ServiceModelDiscoveryOptions _options;
 
-        public ServiceModelDiscoveryService(IOptions<ServiceModelDiscoveryOptions> options)
+        public ServiceModelDiscoveryService(IOptions<ServiceModelDiscoveryOptions> options, ILogger<ServiceModelDiscoveryService> logger)
         {
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
 
             if (!_options.IsValid())
@@ -36,19 +39,30 @@ namespace EMG.Extensions.DependencyInjection.Discovery
         {
             var probeEndpointAddress = new EndpointAddress(_options.ProbeEndpoint);
             var discoveryEndpoint = new DiscoveryEndpoint(_options.DiscoveryBinding, probeEndpointAddress);
+            
             var discoveryClient = new DiscoveryClient(discoveryEndpoint);
 
-            var criteria = new FindCriteria(typeof(TService));
-
-            var response = discoveryClient.Find(criteria);
-
-            var preferredEndpoint = response.Endpoints.FirstOrDefault(e => e.Address.Uri.Scheme == binding.Scheme);
-
-            if (preferredEndpoint != null)
+            try
             {
-                var channel = ChannelFactory<TService>.CreateChannel(binding, preferredEndpoint.Address);
+                var criteria = new FindCriteria(typeof(TService));
 
-                return channel;
+                var response = discoveryClient.Find(criteria);
+
+                discoveryClient.Close();
+
+                var preferredEndpoint = response.Endpoints.FirstOrDefault(e => e.Address.Uri.Scheme == binding.Scheme);
+
+                if (preferredEndpoint != null)
+                {
+                    var channel = ChannelFactory<TService>.CreateChannel(binding, preferredEndpoint.Address);
+
+                    return channel;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"An error occurred while resolving the service {typeof(TService).Name}");
+                discoveryClient.InnerChannel.Abort();
             }
 
             return null;
