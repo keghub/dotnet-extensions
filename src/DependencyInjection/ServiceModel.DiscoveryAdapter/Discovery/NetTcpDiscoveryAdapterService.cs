@@ -4,23 +4,26 @@ using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.Xml;
 using EMG.Utilities;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace EMG.Extensions.DependencyInjection.Discovery
 {
     public class NetTcpDiscoveryOptions
     {
-        public string ProbeEndpoint { get; set; }
+        public Uri ProbeEndpoint { get; set; }
 
         public Action<NetTcpBinding> ConfigureDiscoveryAdapterBinding { get; set; } = delegate { };
     }
 
     public class NetTcpDiscoveryAdapterService : IDiscoveryService
     {
+        private readonly ILogger<NetTcpDiscoveryAdapterService> _logger;
         private readonly NetTcpDiscoveryOptions _options;
 
-        public NetTcpDiscoveryAdapterService(IOptions<NetTcpDiscoveryOptions> options)
+        public NetTcpDiscoveryAdapterService(IOptions<NetTcpDiscoveryOptions> options, ILogger<NetTcpDiscoveryAdapterService> logger)
         {
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
         }
 
@@ -56,12 +59,10 @@ namespace EMG.Extensions.DependencyInjection.Discovery
                     return true;
                 }
             }
-            catch (CommunicationException ex)
+            catch (Exception ex)
             {
-                throw new EndpointNotFoundException($"Could not retrieve endpoint for {serviceType.Name}.", ex);
-            }
-            catch
-            {
+                _logger.LogError(ex, $"An error occurred while resolving the service {serviceType.Name}");
+                (channel as ICommunicationObject).Abort();
                 return false;
             }
             
@@ -70,6 +71,11 @@ namespace EMG.Extensions.DependencyInjection.Discovery
 
         private IDiscoveryAdapter GetDiscoveryServiceAdapter()
         {
+            if (_options.ProbeEndpoint == null)
+            {
+                throw new ArgumentNullException(nameof(_options.ProbeEndpoint), $"{nameof(NetTcpDiscoveryOptions.ProbeEndpoint)} cannot be null. Please configure {nameof(NetTcpDiscoveryOptions)}");
+            }
+
             var binding = new NetTcpBinding();
             _options.ConfigureDiscoveryAdapterBinding?.Invoke(binding);
 

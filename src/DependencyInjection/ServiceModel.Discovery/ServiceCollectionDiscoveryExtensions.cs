@@ -45,16 +45,11 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
-        public static IServiceCollection AddServiceDiscovery(this IServiceCollection services, Func<Binding> bindingFactory)
+        public static IServiceCollection AddServiceDiscovery(this IServiceCollection services)
         {
             if (services == null)
             {
                 throw new ArgumentNullException(nameof(services));
-            }
-
-            if (bindingFactory == null)
-            {
-                throw new ArgumentNullException(nameof(bindingFactory));
             }
 
             services.AddOptions();

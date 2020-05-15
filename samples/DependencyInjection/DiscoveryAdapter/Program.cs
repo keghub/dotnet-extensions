@@ -25,13 +25,15 @@ namespace DiscoveryAdapter
 
             services.AddLogging(l => l.AddConsole());
 
-            services.AddServiceDiscoveryAdapter(configuration.GetSection("Discovery"), o =>
+            services.AddServiceDiscoveryAdapter()
+                    .ConfigureServiceDiscovery(configuration.GetSection("Discovery"))
+                    .ConfigureServiceDiscovery(o =>
             {
                 o.ConfigureDiscoveryAdapterBinding = binding =>
                 {
                     binding.Security.Mode = SecurityMode.None;
                 };
-            });
+            }); ;
 
             services.DiscoverServiceUsingAdapter<IMyService>(binding => binding.Security.Mode = SecurityMode.None);
 

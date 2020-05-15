@@ -2,7 +2,6 @@
 
 using System;
 using System.ServiceModel;
-using System.ServiceModel.Channels;
 using EMG.Extensions.DependencyInjection.Discovery;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -11,16 +10,45 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class ServiceCollectionDiscoveryExtensions
     {
-        public static IServiceCollection AddServiceDiscoveryAdapter(this IServiceCollection services, IConfigurationSection configurationSection, Action<NetTcpDiscoveryOptions> configureOptions = null)
+        public static IServiceCollection ConfigureServiceDiscovery(this IServiceCollection services, IConfigurationSection configurationSection)
         {
-            services.TryAddSingleton<IDiscoveryService, NetTcpDiscoveryAdapterService>();
+            if (services == null)
+            {
+                throw new ArgumentNullException(nameof(services));
+            }
+
+            if (configurationSection == null)
+            {
+                throw new ArgumentNullException(nameof(configurationSection));
+            }
 
             services.Configure<NetTcpDiscoveryOptions>(configurationSection);
 
-            if (configureOptions != null)
+            return services;
+        }
+
+        public static IServiceCollection ConfigureServiceDiscovery(this IServiceCollection services, Action<NetTcpDiscoveryOptions> configureOptions)
+        {
+            if (services == null)
             {
-                services.Configure<NetTcpDiscoveryOptions>(configureOptions);
+                throw new ArgumentNullException(nameof(services));
             }
+
+            if (configureOptions == null)
+            {
+                throw new ArgumentNullException(nameof(configureOptions));
+            }
+
+            services.Configure<NetTcpDiscoveryOptions>(configureOptions);
+
+            return services;
+        }
+
+        public static IServiceCollection AddServiceDiscoveryAdapter(this IServiceCollection services)
+        {
+            services.AddOptions();
+
+            services.TryAddSingleton<IDiscoveryService, NetTcpDiscoveryAdapterService>();
 
             return services;
         }

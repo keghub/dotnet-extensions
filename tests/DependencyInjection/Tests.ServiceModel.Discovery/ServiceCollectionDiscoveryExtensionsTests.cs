@@ -17,9 +17,9 @@ namespace Tests
     public class ServiceCollectionDiscoveryExtensionsTests
     {
         [Test, CustomAutoData]
-        public void AddServiceDiscovery_registers_IDiscoveryService(ServiceCollection services, Func<Binding> bindingFactory)
+        public void AddServiceDiscovery_registers_IDiscoveryService(ServiceCollection services)
         {
-            services.AddServiceDiscovery(bindingFactory);
+            services.AddServiceDiscovery();
 
             var serviceProvider = services.BuildServiceProvider();
 
