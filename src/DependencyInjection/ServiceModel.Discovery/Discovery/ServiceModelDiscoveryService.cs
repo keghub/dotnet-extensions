@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.ServiceModel;
@@ -21,18 +22,20 @@ namespace EMG.Extensions.DependencyInjection.Discovery
     {
         private readonly IServiceModelDiscoveryClientWrapper _discoveryClient;
         private readonly IChannelFactoryWrapper _channelFactory;
+        private readonly IBindingFactory _bindingFactory;
         private readonly ILogger<ServiceModelDiscoveryService> _logger;
         private readonly ServiceModelDiscoveryOptions _options;
 
-        public ServiceModelDiscoveryService(IServiceModelDiscoveryClientWrapper discoveryClient, IChannelFactoryWrapper channelFactory, IOptions<ServiceModelDiscoveryOptions> options, ILogger<ServiceModelDiscoveryService> logger)
+        public ServiceModelDiscoveryService(IServiceModelDiscoveryClientWrapper discoveryClient, IChannelFactoryWrapper channelFactory, IBindingFactory bindingFactory, IOptions<ServiceModelDiscoveryOptions> options, ILogger<ServiceModelDiscoveryService> logger)
         {
             _discoveryClient = discoveryClient ?? throw new ArgumentNullException(nameof(discoveryClient));
             _channelFactory = channelFactory ?? throw new ArgumentNullException(nameof(channelFactory));
+            _bindingFactory = bindingFactory ?? throw new ArgumentNullException(nameof(bindingFactory));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
         }
 
-        public TService Discover<TService>(Binding binding) where TService : class
+        public TService Discover<TService>() where TService : class
         {
             var discoveryBinding = _options.DiscoveryBindingFactory.Invoke();
 
@@ -50,12 +53,13 @@ namespace EMG.Extensions.DependencyInjection.Discovery
 
                 var endpoints = _discoveryClient.FindEndpoints(discoveryEndpoint, criteria);
 
-                var preferredEndpoint = endpoints?.FirstOrDefault(e => e.Address.Uri.Scheme == binding.Scheme);
+                var items = from endpoint in endpoints
+                            let binding = _bindingFactory.Create(typeof(TService), endpoint.Address.Uri.Scheme)
+                            where binding != null
+                            let channel = _channelFactory.CreateChannel<TService>(binding, endpoint.Address)
+                            select channel;
 
-                if (preferredEndpoint != null)
-                {
-                    return _channelFactory.CreateChannel<TService>(binding, preferredEndpoint.Address);
-                }
+                return items.FirstOrDefault();
             }
             catch (Exception ex)
             {

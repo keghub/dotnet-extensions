@@ -70,93 +70,19 @@ namespace Tests
         }
 
         [Test, CustomAutoData]
-        public void DiscoverService_registers_service_using_discovery(ServiceCollection services, Func<NetTcpBinding> bindingFactory, ServiceLifetime lifetime, ITestService testService, IDiscoveryService discoveryService)
+        public void DiscoverService_registers_service_using_discovery(ServiceCollection services, ServiceLifetime lifetime, ITestService testService, IDiscoveryService discoveryService)
         {
-            services.DiscoverService<ITestService>(bindingFactory, lifetime);
+            services.DiscoverService<ITestService>(lifetime);
 
             services.AddSingleton<IDiscoveryService>(discoveryService);
 
-            Mock.Get(discoveryService).Setup(p => p.Discover<ITestService>(It.IsAny<Binding>())).Returns(testService);
+            Mock.Get(discoveryService).Setup(p => p.Discover<ITestService>()).Returns(testService);
 
             var serviceProvider = services.BuildServiceProvider();
 
             var service = serviceProvider.GetRequiredService<ITestService>();
 
             Assert.That(service, Is.SameAs(testService));
-
-            Mock.Get(bindingFactory).Verify(p => p(), Times.Once);
-        }
-
-        [Test, CustomAutoData]
-        public void DiscoverBasicHttpService_registers_service_for_BasicHttp(ServiceCollection services, Action<BasicHttpBinding> customizeBinding, ServiceLifetime lifetime, ITestService testService, IDiscoveryService discoveryService)
-        {
-            services.DiscoverBasicHttpService<ITestService>(customizeBinding, lifetime);
-
-            services.AddSingleton<IDiscoveryService>(discoveryService);
-
-            Mock.Get(discoveryService).Setup(p => p.Discover<ITestService>(It.IsAny<Binding>())).Returns(testService);
-
-            var serviceProvider = services.BuildServiceProvider();
-
-            var service = serviceProvider.GetRequiredService<ITestService>();
-
-            Assert.That(service, Is.SameAs(testService));
-
-            Mock.Get(customizeBinding).Verify(p => p(It.IsAny<BasicHttpBinding>()), Times.Once());
-        }
-
-        [Test, CustomAutoData]
-        public void DiscoverNetTcpService_registers_service_for_NetTcp(ServiceCollection services, Action<NetTcpBinding> customizeBinding, ServiceLifetime lifetime, ITestService testService, IDiscoveryService discoveryService)
-        {
-            services.DiscoverNetTcpService<ITestService>(customizeBinding, lifetime);
-
-            services.AddSingleton<IDiscoveryService>(discoveryService);
-
-            Mock.Get(discoveryService).Setup(p => p.Discover<ITestService>(It.IsAny<Binding>())).Returns(testService);
-
-            var serviceProvider = services.BuildServiceProvider();
-
-            var service = serviceProvider.GetRequiredService<ITestService>();
-
-            Assert.That(service, Is.SameAs(testService));
-
-            Mock.Get(customizeBinding).Verify(p => p(It.IsAny<NetTcpBinding>()), Times.Once());
-        }
-
-        [Test, CustomAutoData]
-        public void DiscoverNamedPipeService_registers_service_for_NamedPipe(ServiceCollection services, Action<NetNamedPipeBinding> customizeBinding, ServiceLifetime lifetime, ITestService testService, IDiscoveryService discoveryService)
-        {
-            services.DiscoverNamedPipeService<ITestService>(customizeBinding, lifetime);
-
-            services.AddSingleton<IDiscoveryService>(discoveryService);
-
-            Mock.Get(discoveryService).Setup(p => p.Discover<ITestService>(It.IsAny<Binding>())).Returns(testService);
-
-            var serviceProvider = services.BuildServiceProvider();
-
-            var service = serviceProvider.GetRequiredService<ITestService>();
-
-            Assert.That(service, Is.SameAs(testService));
-
-            Mock.Get(customizeBinding).Verify(p => p(It.IsAny<NetNamedPipeBinding>()), Times.Once());
-        }
-
-        [Test, CustomAutoData]
-        public void DiscoverWSHttpService_registers_service_for_WSHttp(ServiceCollection services, Action<WSHttpBinding> customizeBinding, ServiceLifetime lifetime, ITestService testService, IDiscoveryService discoveryService)
-        {
-            services.DiscoverWSHttpService<ITestService>(customizeBinding, lifetime);
-
-            services.AddSingleton<IDiscoveryService>(discoveryService);
-
-            Mock.Get(discoveryService).Setup(p => p.Discover<ITestService>(It.IsAny<Binding>())).Returns(testService);
-
-            var serviceProvider = services.BuildServiceProvider();
-
-            var service = serviceProvider.GetRequiredService<ITestService>();
-
-            Assert.That(service, Is.SameAs(testService));
-
-            Mock.Get(customizeBinding).Verify(p => p(It.IsAny<WSHttpBinding>()), Times.Once());
         }
     }
 }

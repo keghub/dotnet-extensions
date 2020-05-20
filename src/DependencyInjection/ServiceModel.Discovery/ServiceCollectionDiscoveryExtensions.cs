@@ -4,6 +4,7 @@ using System;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using EMG.Extensions.DependencyInjection.Discovery;
+using EMG.Extensions.DependencyInjection.Discovery.BindingCustomizations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -58,12 +59,36 @@ namespace Microsoft.Extensions.DependencyInjection
             
             services.TryAddSingleton<IServiceModelDiscoveryClientWrapper, ServiceModelDiscoveryClientWrapper>();
 
+            services.TryAddSingleton<IBindingFactory, CustomizableBindingFactory>();
+
+            services.TryAddSingleton<IBindingFactoryCustomization>(new BindingFactoryCustomization(Uri.UriSchemeNetTcp, () => new NetTcpBinding()));
+
+            services.TryAddSingleton<IBindingFactoryCustomization>(new BindingFactoryCustomization(Uri.UriSchemeHttp, () => new WSHttpBinding()));
+            
+            services.TryAddSingleton<IBindingFactoryCustomization>(new BindingFactoryCustomization(Uri.UriSchemeHttps, () => new WSHttpBinding()));
+
             services.TryAddSingleton<IDiscoveryService, ServiceModelDiscoveryService>();
 
             return services;
         }
 
-        public static IServiceCollection DiscoverService<TService>(this IServiceCollection services, Func<Binding> bindingFactory, ServiceLifetime serviceLifetime = ServiceLifetime.Transient) where TService : class
+        public static IServiceCollection AddServiceBindingCustomization<TService>(this IServiceCollection services, string uriScheme, Func<Binding> bindingFactory)
+            where TService : class
+        {
+            services.Insert(0, ServiceDescriptor.Singleton<IBindingFactoryCustomization>(sp => new ServiceBindingFactoryCustomization<TService>(uriScheme, bindingFactory)));
+
+            return services;
+        }
+
+        public static IServiceCollection AddBindingCustomization<TCustomization>(this IServiceCollection services)
+            where TCustomization : class, IBindingFactoryCustomization
+        {
+            services.Insert(0, ServiceDescriptor.Singleton<IBindingFactoryCustomization, TCustomization>());
+
+            return services;
+        }
+
+        public static IServiceCollection DiscoverService<TService>(this IServiceCollection services, ServiceLifetime serviceLifetime = ServiceLifetime.Transient) where TService : class
         {
             services.Add(ServiceDescriptor.Describe(typeof(TService), ResolveService, serviceLifetime));
 
@@ -73,71 +98,9 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 var discoveryService = serviceProvider.GetRequiredService<IDiscoveryService>();
 
-                var binding = bindingFactory();
-
-                var service = discoveryService.Discover<TService>(binding);
+                var service = discoveryService.Discover<TService>();
 
                 return service;
-            }
-        }
-
-        public static IServiceCollection DiscoverBasicHttpService<TService>(this IServiceCollection services, Action<BasicHttpBinding> customizeBinding = null, ServiceLifetime serviceLifetime = ServiceLifetime.Transient)
-            where TService : class
-        {
-            return services.DiscoverService<TService>(CreateBinding, serviceLifetime);
-
-            BasicHttpBinding CreateBinding()
-            {
-                var binding = new BasicHttpBinding();
-
-                customizeBinding?.Invoke(binding);
-
-                return binding;
-            }
-        }
-
-        public static IServiceCollection DiscoverWSHttpService<TService>(this IServiceCollection services, Action<WSHttpBinding> customizeBinding = null, ServiceLifetime serviceLifetime = ServiceLifetime.Transient)
-            where TService : class
-        {
-            return services.DiscoverService<TService>(CreateBinding, serviceLifetime);
-
-            WSHttpBinding CreateBinding()
-            {
-                var binding = new WSHttpBinding();
-
-                customizeBinding?.Invoke(binding);
-
-                return binding;
-            }
-        }
-
-        public static IServiceCollection DiscoverNetTcpService<TService>(this IServiceCollection services, Action<NetTcpBinding> customizeBinding = null, ServiceLifetime serviceLifetime = ServiceLifetime.Transient)
-            where TService : class
-        {
-            return services.DiscoverService<TService>(CreateBinding, serviceLifetime);
-
-            NetTcpBinding CreateBinding()
-            {
-                var binding = new NetTcpBinding();
-
-                customizeBinding?.Invoke(binding);
-
-                return binding;
-            }
-        }
-
-        public static IServiceCollection DiscoverNamedPipeService<TService>(this IServiceCollection services, Action<NetNamedPipeBinding> customizeBinding = null, ServiceLifetime serviceLifetime = ServiceLifetime.Transient)
-            where TService : class
-        {
-            return services.DiscoverService<TService>(CreateBinding, serviceLifetime);
-
-            NetNamedPipeBinding CreateBinding()
-            {
-                var binding = new NetNamedPipeBinding();
-
-                customizeBinding?.Invoke(binding);
-
-                return binding;
             }
         }
     }
