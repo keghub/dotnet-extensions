@@ -67,7 +67,7 @@ namespace Discovery
     {
         public Type ServiceType { get; } = null;
 
-        public string UriScheme { get; } = null;
+        public string UriScheme { get; } = Uri.UriSchemeNetTcp;
 
         public Binding Create() => new NetTcpBinding(SecurityMode.None);
     }

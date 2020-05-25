@@ -86,6 +86,5 @@ namespace Tests
 
             Mock.Get(configureBinding).Verify(p => p(It.IsAny<NetTcpBinding>()), Times.Once);
         }
-
     }
 }

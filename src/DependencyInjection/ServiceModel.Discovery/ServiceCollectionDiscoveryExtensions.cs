@@ -75,6 +75,21 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddServiceBindingCustomization<TService>(this IServiceCollection services, string uriScheme, Func<Binding> bindingFactory)
             where TService : class
         {
+            if (services == null)
+            {
+                throw new ArgumentNullException(nameof(services));
+            }
+
+            if (uriScheme == null)
+            {
+                throw new ArgumentNullException(nameof(uriScheme));
+            }
+
+            if (bindingFactory == null)
+            {
+                throw new ArgumentNullException(nameof(bindingFactory));
+            }
+
             services.Insert(0, ServiceDescriptor.Singleton<IBindingFactoryCustomization>(sp => new ServiceBindingFactoryCustomization<TService>(uriScheme, bindingFactory)));
 
             return services;
@@ -83,6 +98,11 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddBindingCustomization<TCustomization>(this IServiceCollection services)
             where TCustomization : class, IBindingFactoryCustomization
         {
+            if (services == null)
+            {
+                throw new ArgumentNullException(nameof(services));
+            }
+
             services.Insert(0, ServiceDescriptor.Singleton<IBindingFactoryCustomization, TCustomization>());
 
             return services;
@@ -90,6 +110,11 @@ namespace Microsoft.Extensions.DependencyInjection
 
         public static IServiceCollection DiscoverService<TService>(this IServiceCollection services, ServiceLifetime serviceLifetime = ServiceLifetime.Transient) where TService : class
         {
+            if (services == null)
+            {
+                throw new ArgumentNullException(nameof(services));
+            }
+
             services.Add(ServiceDescriptor.Describe(typeof(TService), ResolveService, serviceLifetime));
 
             return services;

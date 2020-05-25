@@ -3,7 +3,9 @@ using System.ServiceModel;
 using System.ServiceModel.Channels;
 using AutoFixture;
 using AutoFixture.AutoMoq;
+using AutoFixture.Kernel;
 using AutoFixture.NUnit3;
+using EMG.Extensions.DependencyInjection.Discovery.BindingCustomizations;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Tests
