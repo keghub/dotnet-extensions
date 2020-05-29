@@ -1,9 +1,12 @@
 using System;
+using System.ServiceModel;
+using System.Xml;
 using AutoFixture;
 using AutoFixture.AutoMoq;
 using AutoFixture.NUnit3;
-using EMG.Extensions.DependencyInjection.Discovery;
+using EMG.Utilities;
 using Microsoft.Extensions.DependencyInjection;
+using Moq;
 
 namespace Tests
 {
@@ -21,9 +24,23 @@ namespace Tests
                 GenerateDelegates = true
             });
 
+            fixture.Customize<Uri>(o => o.FromFactory((string host, int port, string path) =>
+            {
+                var builder = new UriBuilder(Uri.UriSchemeNetTcp, host, port, path);
+                return builder.Uri;
+            }));
+
             fixture.Customize<ServiceCollection>(o => o.Do(services => { services.AddLogging(); }));
 
-            fixture.Customize<NetTcpDiscoveryOptions>(o => o.With(p => p.ProbeEndpoint, (Uri seed) => CreateNetTcpUri(seed)));
+            fixture.Customize<IDiscoveryAdapter>(o => o.FromFactory((Uri seed) =>
+            {
+                var mock = new Mock<IDiscoveryAdapter>();
+                mock.As<ICommunicationObject>();
+
+                mock.Setup(p => p.Discover(It.IsAny<XmlQualifiedName>())).ReturnsUsingFixture(fixture);
+
+                return mock.Object;
+            }));
 
             return fixture;
         }

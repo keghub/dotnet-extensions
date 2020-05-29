@@ -1,9 +1,9 @@
-﻿using System.ServiceModel.Channels;
+﻿using System.ServiceModel;
 
 namespace EMG.Extensions.DependencyInjection.Discovery
 {
     public interface IDiscoveryService
     {
-        TService Discover<TService>(Binding binding) where TService : class;
+        TService Discover<TService>(NetTcpBinding binding) where TService : class;
     }
 }

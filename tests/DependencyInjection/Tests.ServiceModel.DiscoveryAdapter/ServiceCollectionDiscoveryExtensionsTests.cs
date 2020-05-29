@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.ServiceModel;
-using System.ServiceModel.Channels;
 using AutoFixture.Idioms;
 using EMG.Extensions.DependencyInjection.Discovery;
 using Microsoft.Extensions.Configuration;
@@ -23,7 +22,21 @@ namespace Tests
 
             var serviceProvider = services.BuildServiceProvider();
 
-            serviceProvider.GetRequiredService<IDiscoveryService>();
+            var service = serviceProvider.GetRequiredService<IDiscoveryService>();
+
+            Assert.That(service, Is.Not.Null);
+        }
+
+        [Test, CustomAutoData]
+        public void AddServiceDiscovery_registers_IBindingFactory(ServiceCollection services)
+        {
+            services.AddServiceDiscoveryAdapter();
+
+            var serviceProvider = services.BuildServiceProvider();
+
+            var service = serviceProvider.GetRequiredService<IBindingFactory>();
+
+            Assert.That(service, Is.Not.Null);
         }
 
         [Test, CustomAutoData]
@@ -70,21 +83,73 @@ namespace Tests
         }
 
         [Test, CustomAutoData]
-        public void DiscoverService_registers_service_using_discovery(ServiceCollection services, Action<NetTcpBinding> configureBinding, ServiceLifetime lifetime, ITestService testService, IDiscoveryService discoveryService)
+        public void DiscoverServiceUsingAdapter_registers_service_using_discovery(ServiceCollection services, ServiceLifetime lifetime, ITestService testService, IDiscoveryService discoveryService, IBindingFactory bindingFactory)
         {
-            services.DiscoverServiceUsingAdapter<ITestService>(configureBinding, lifetime);
+            services.DiscoverServiceUsingAdapter<ITestService>(lifetime);
+
+            services.AddSingleton<IBindingFactory>(bindingFactory);
 
             services.AddSingleton<IDiscoveryService>(discoveryService);
 
-            Mock.Get(discoveryService).Setup(p => p.Discover<ITestService>(It.IsAny<Binding>())).Returns(testService);
+            Mock.Get(discoveryService).Setup(p => p.Discover<ITestService>(It.IsAny<NetTcpBinding>())).Returns(testService);
 
             var serviceProvider = services.BuildServiceProvider();
 
             var service = serviceProvider.GetRequiredService<ITestService>();
 
             Assert.That(service, Is.SameAs(testService));
+        }
 
-            Mock.Get(configureBinding).Verify(p => p(It.IsAny<NetTcpBinding>()), Times.Once);
+        [Test, CustomAutoData]
+        public void AddServiceBindingCustomization_does_not_accept_nulls(GuardClauseAssertion assertion)
+        {
+            assertion.Verify(typeof(ServiceCollectionDiscoveryExtensions).GetRuntimeMethods().Where(m => m.Name == nameof(ServiceCollectionDiscoveryExtensions.AddServiceBindingCustomization)));
+        }
+
+        [Test, CustomAutoData]
+        public void AddServiceBindingCustomization_registers_binding_customization_for_service(ServiceCollection services, Action<NetTcpBinding> bindingCustomization)
+        {
+            services.AddServiceBindingCustomization<ITestService>(bindingCustomization);
+
+            var serviceProvider = services.BuildServiceProvider();
+
+            var customization = serviceProvider.GetRequiredService<IBindingFactoryCustomization>();
+
+            _ = customization.Create();
+
+            Mock.Get(bindingCustomization).Verify(p => p(It.IsAny<NetTcpBinding>()), Times.Once());
+        }
+
+        [Test, CustomAutoData]
+        public void AddBindingCustomization_does_not_accept_nulls(GuardClauseAssertion assertion)
+        {
+            assertion.Verify(typeof(ServiceCollectionDiscoveryExtensions).GetRuntimeMethods().Where(m => m.Name == nameof(ServiceCollectionDiscoveryExtensions.AddBindingCustomization)));
+        }
+
+        [Test, CustomAutoData]
+        public void AddBindingCustomization_registers_customization_by_type(ServiceCollection services)
+        {
+            services.AddBindingCustomization<TestCustomization>();
+
+            var serviceProvider = services.BuildServiceProvider();
+
+            var customization = serviceProvider.GetRequiredService<IBindingFactoryCustomization>();
+
+            Assert.That(customization, Is.InstanceOf<TestCustomization>());
+        }
+
+        [Test, CustomAutoData]
+        public void AddBindingCustomization_registers_binding_customization(ServiceCollection services, Action<NetTcpBinding> bindingCustomization)
+        {
+            services.AddBindingCustomization(bindingCustomization);
+
+            var serviceProvider = services.BuildServiceProvider();
+
+            var customization = serviceProvider.GetRequiredService<IBindingFactoryCustomization>();
+
+            _ = customization.Create();
+
+            Mock.Get(bindingCustomization).Verify(p => p(It.IsAny<NetTcpBinding>()), Times.Once());
         }
     }
 }

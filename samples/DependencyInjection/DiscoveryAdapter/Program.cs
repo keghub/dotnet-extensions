@@ -33,9 +33,11 @@ namespace DiscoveryAdapter
                 {
                     binding.Security.Mode = SecurityMode.None;
                 };
-            }); ;
+            });
 
-            services.DiscoverServiceUsingAdapter<IMyService>(binding => binding.Security.Mode = SecurityMode.None);
+            services.AddBindingCustomization(binding => binding.Security.Mode = SecurityMode.None);
+
+            services.DiscoverServiceUsingAdapter<IMyService>();
 
             var serviceProvider = services.BuildServiceProvider();
 

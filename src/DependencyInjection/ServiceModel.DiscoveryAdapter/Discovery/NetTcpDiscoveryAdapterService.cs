@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Reflection;
 using System.ServiceModel;
-using System.ServiceModel.Channels;
 using System.Xml;
 using EMG.Utilities;
 using Microsoft.Extensions.Logging;
@@ -18,25 +17,26 @@ namespace EMG.Extensions.DependencyInjection.Discovery
 
     public class NetTcpDiscoveryAdapterService : IDiscoveryService
     {
+        private readonly IChannelFactoryWrapper _channelFactory;
         private readonly ILogger<NetTcpDiscoveryAdapterService> _logger;
         private readonly NetTcpDiscoveryOptions _options;
 
-        public NetTcpDiscoveryAdapterService(IOptions<NetTcpDiscoveryOptions> options, ILogger<NetTcpDiscoveryAdapterService> logger)
+        public NetTcpDiscoveryAdapterService(IChannelFactoryWrapper channelFactory, IOptions<NetTcpDiscoveryOptions> options, ILogger<NetTcpDiscoveryAdapterService> logger)
         {
+            _channelFactory = channelFactory ?? throw new ArgumentNullException(nameof(channelFactory));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
         }
 
-        public TService Discover<TService>(Binding binding) where TService : class
+        public TService Discover<TService>(NetTcpBinding binding) where TService : class
         {
             if (!TryGetTargetEndpointAddress(typeof(TService), out var endpointAddress))
             {
+                _logger.LogError($"Impossible to resolve service: {typeof(TService).Name}");
                 return null;
             }
 
-            var factory = new ChannelFactory<TService>(binding, endpointAddress);
-
-            return factory.CreateChannel();
+            return _channelFactory.CreateChannel<TService>(binding, endpointAddress);
         }
 
         private bool TryGetTargetEndpointAddress(Type serviceType, out EndpointAddress endpointAddress)
@@ -53,7 +53,7 @@ namespace EMG.Extensions.DependencyInjection.Discovery
 
                 (channel as ICommunicationObject).Close();
 
-                if (endpoint != null)
+                if (string.Equals(endpoint?.Scheme, Uri.UriSchemeNetTcp, StringComparison.OrdinalIgnoreCase))
                 {
                     endpointAddress = new EndpointAddress(endpoint);
                     return true;
@@ -65,7 +65,7 @@ namespace EMG.Extensions.DependencyInjection.Discovery
                 (channel as ICommunicationObject).Abort();
                 return false;
             }
-            
+
             return false;
         }
 
@@ -81,11 +81,7 @@ namespace EMG.Extensions.DependencyInjection.Discovery
 
             var address = new EndpointAddress(_options.ProbeEndpoint);
 
-            var factory = new ChannelFactory<IDiscoveryAdapter>(binding, address);
-
-            var channel = factory.CreateChannel();
-
-            return channel;
+            return _channelFactory.CreateChannel<IDiscoveryAdapter>(binding, address);
         }
 
         private const string DefaultNamespace = "http://tempuri.org/";
