@@ -1,0 +1,7 @@
+<Project>
+  <PropertyGroup>
+    <RootNamespace>Helpers</RootNamespace>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,7 @@
+<Project>
+  <PropertyGroup>
+    <RootNamespace>Samples</RootNamespace>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+</Project>
