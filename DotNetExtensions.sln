@@ -33,19 +33,24 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{4237
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DependencyInjection", "DependencyInjection", "{A5371690-4702-4E10-A3B4-9E5AC9095339}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscoveryAdapter", "samples\DependencyInjection\DiscoveryAdapter\DiscoveryAdapter.csproj", "{9334A768-101E-4A53-B9FB-FD55AFE64508}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiscoveryAdapter", "samples\DependencyInjection\DiscoveryAdapter\DiscoveryAdapter.csproj", "{9334A768-101E-4A53-B9FB-FD55AFE64508}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Discovery", "samples\DependencyInjection\Discovery\Discovery.csproj", "{D67A04F8-AC8C-41AB-B02A-0BC975B3B24C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Discovery", "samples\DependencyInjection\Discovery\Discovery.csproj", "{D67A04F8-AC8C-41AB-B02A-0BC975B3B24C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "helpers", "helpers", "{D16EC4AA-2F8D-411D-95BB-EA64F3202D86}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscoverableService", "helpers\DiscoverableService\DiscoverableService.csproj", "{6177DC20-2AFB-4C12-876B-4D8116CCEBCE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiscoverableService", "helpers\DiscoverableService\DiscoverableService.csproj", "{6177DC20-2AFB-4C12-876B-4D8116CCEBCE}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DependencyInjection", "DependencyInjection", "{AEAA04B5-1A1E-4E5D-9B85-AD8AC2B115A8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests.ServiceModel.Discovery", "tests\DependencyInjection\Tests.ServiceModel.Discovery\Tests.ServiceModel.Discovery.csproj", "{0872058D-355C-49B7-BF07-0C17DE77FBAF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests.ServiceModel.Discovery", "tests\DependencyInjection\Tests.ServiceModel.Discovery\Tests.ServiceModel.Discovery.csproj", "{0872058D-355C-49B7-BF07-0C17DE77FBAF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests.ServiceModel.DiscoveryAdapter", "tests\DependencyInjection\Tests.ServiceModel.DiscoveryAdapter\Tests.ServiceModel.DiscoveryAdapter.csproj", "{0C1CA3C5-668F-481C-BB56-04C1F8F185B5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests.ServiceModel.DiscoveryAdapter", "tests\DependencyInjection\Tests.ServiceModel.DiscoveryAdapter\Tests.ServiceModel.DiscoveryAdapter.csproj", "{0C1CA3C5-668F-481C-BB56-04C1F8F185B5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{36FB83B2-0B1C-42FC-8C32-2ED5FD7A9229}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
