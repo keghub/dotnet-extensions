@@ -1,8 +1,6 @@
 <Project>
   <PropertyGroup>
     <RootNamespace>Tests</RootNamespace>
-    <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)\..\CodeAnalysis.Empty.ruleset</CodeAnalysisRuleSet>
-    <Configurations>Debug;Release;Verify</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,11 +16,12 @@
     <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.205" PrivateAssets="all" />
   </ItemGroup>
 
-  <PropertyGroup Condition=" '$(Configuration)'=='Verify' ">
+  <PropertyGroup>
+    <Configurations>$(Configurations);Verify</Configurations>
     <SkipDefaultEditorConfigAsAdditionalFile>true</SkipDefaultEditorConfigAsAdditionalFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)\CodeAnalysis.Tests.ruleset</CodeAnalysisRuleSet>
+    <TreatWarningsAsErrors Condition=" '$(Configuration)'=='Verify' OR '$(Configuration)'=='Release'">true</TreatWarningsAsErrors>
+    <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)\..\CodeAnalysis.Tests.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   <ItemGroup>
