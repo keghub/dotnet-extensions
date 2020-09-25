@@ -13,7 +13,7 @@ namespace EMG.Extensions.Logging.Loggly
 
         public string Category { get; set; }
 
-        public EventId Event { get; set; }
+        public EventId EventId { get; set; }
 
         public string Message { get; set; }
 
