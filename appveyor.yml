@@ -37,3 +37,8 @@ deploy:
     on:
       branch: master
       appveyor_repo_tag: true
+  - provider: Environment
+    name: EMG GPR
+    on:
+      branch: master
+      appveyor_repo_tag: true
