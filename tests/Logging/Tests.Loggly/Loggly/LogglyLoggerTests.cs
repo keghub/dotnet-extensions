@@ -60,7 +60,7 @@ namespace Tests.Loggly
 
             sut.Log(level, eventId, state, error, formatter);
 
-            Mock.Get(processor).Verify(p => p.EnqueueMessage(It.Is<LogglyMessage>(m => m.Level == level && m.Category == sut.Name && m.Event == eventId && m.Data == state && m.Message == message)));
+            Mock.Get(processor).Verify(p => p.EnqueueMessage(It.Is<LogglyMessage>(m => m.Level == level && m.Category == sut.Name && m.EventId == eventId && m.Data == state && m.Message == message)));
         }
 
         [Test, AutoMoqData]

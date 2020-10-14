@@ -103,7 +103,7 @@ namespace EMG.Extensions.Logging.Loggly
                 Category = logglyMessage.Category,
                 Data = newData,
                 Error = logglyMessage.Error,
-                Event = logglyMessage.Event,
+                EventId = logglyMessage.EventId,
                 Level = logglyMessage.Level,
                 MachineName = logglyMessage.MachineName,
                 Message = logglyMessage.Message

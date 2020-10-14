@@ -47,7 +47,7 @@ namespace EMG.Extensions.Logging.Loggly
                 MachineName = Environment.MachineName,
                 Category = Name,
                 Data = state,
-                Event = eventId,
+                EventId = eventId,
                 Message = message,
                 Level = logLevel,
                 Error = FormatException(exception)
