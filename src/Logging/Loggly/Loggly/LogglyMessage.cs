@@ -23,6 +23,8 @@ namespace EMG.Extensions.Logging.Loggly
         public LogLevel Level { get; set; }
 
         public Error Error { get; set; }
+
+        public static LogglyMessage Default => new LogglyMessage {Level = LogLevel.Trace};
     }
 
     public class Error
