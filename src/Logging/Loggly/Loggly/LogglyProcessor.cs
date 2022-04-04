@@ -22,7 +22,7 @@ namespace EMG.Extensions.Logging.Loggly
         public LogglyProcessor(ILogglyClient client, LogglyOptions options)
         {
             _client = client ?? throw new ArgumentNullException(nameof(client));
-            _ = options?.Buffer ?? throw new ArgumentNullException(nameof(options.Buffer));
+            _ = options ?? throw new ArgumentNullException(nameof(options));
 
             var closing = _messageSubject.Buffer(options.Buffer).Select(i => LogglyMessage.Default).Merge(_flush);
             _subscription = _messageSubject.Buffer(() => closing).Subscribe(ProcessLogQueue);
