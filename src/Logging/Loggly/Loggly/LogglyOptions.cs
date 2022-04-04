@@ -26,6 +26,8 @@ namespace EMG.Extensions.Logging.Loggly
         public Action<LogglyMessage> PreProcessMessage { get; set; }
 
         public Encoding ContentEncoding { get; set; } = Encoding.UTF8;
+
+        public TimeSpan Buffer { get; set; } = TimeSpan.FromMilliseconds(50);
     }
 
     public delegate bool FilterDelegate(string categoryName, EventId eventId, LogLevel logLevel);
