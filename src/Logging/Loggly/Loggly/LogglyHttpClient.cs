@@ -118,6 +118,42 @@ namespace EMG.Extensions.Logging.Loggly
             DefaultValueHandling = DefaultValueHandling.Ignore,
             DateTimeZoneHandling = DateTimeZoneHandling.Utc,
             DateFormatHandling = DateFormatHandling.IsoDateFormat,
+	        Converters = { new FormattedIdConverter() }
         };
+    }
+
+    class FormattedIdConverter : JsonConverter
+    {
+        private static HashSet<Type> IdNumericTypes = new HashSet<Type>
+        {
+            typeof(short), typeof(int), typeof(long), typeof(byte),
+            typeof(ushort), typeof(uint), typeof(ulong), typeof(sbyte),
+        };
+
+        internal static bool IsIdNumericType(Type type)
+        {		
+            return IdNumericTypes.Contains(type) ||
+                IdNumericTypes.Contains(Nullable.GetUnderlyingType(type));
+        }
+
+        public override bool CanConvert(Type objectType)
+        {
+            return IsIdNumericType(objectType);
+        }
+
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {		
+            if(writer.Path?.EndsWith("Id", StringComparison.OrdinalIgnoreCase) == true)
+                writer.WriteValue(Convert.ToString(value));
+            else
+                writer.WriteValue(value);
+        }
+
+        public override bool CanRead => false;
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
