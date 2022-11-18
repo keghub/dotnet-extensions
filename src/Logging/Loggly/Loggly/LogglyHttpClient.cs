@@ -122,7 +122,7 @@ namespace EMG.Extensions.Logging.Loggly
         };
     }
 
-    private class FormattedIdConverter : JsonConverter
+    class FormattedIdConverter : JsonConverter
     {
         private static HashSet<Type> IdNumericTypes = new HashSet<Type>
         {
