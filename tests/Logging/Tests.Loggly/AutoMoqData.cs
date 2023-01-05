@@ -29,7 +29,7 @@ namespace Tests
 
             fixture.Customize<HttpClient>(c => c.FromFactory((FakeHttpMessageHandler handler) => new HttpClient(handler)));
 
-            fixture.Customize<CookieContainer>(c => c.FromFactory(() => new CookieContainer()));
+            fixture.Register<CookieContainer>(() => null);
 
             fixture.Customize<LogglyOptions>(o => o
                                                   .Without(p => p.LogglyHost)
