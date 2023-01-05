@@ -29,8 +29,6 @@ namespace Tests
 
             fixture.Customize<HttpClient>(c => c.FromFactory((FakeHttpMessageHandler handler) => new HttpClient(handler)));
 
-            fixture.Register<CookieContainer>(() => null);
-
             fixture.Customize<LogglyOptions>(o => o
                                                   .Without(p => p.LogglyHost)
                                                   .Without(p => p.LogglyScheme)

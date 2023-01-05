@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -7,7 +6,6 @@ using AutoFixture;
 using AutoFixture.Idioms;
 using AutoFixture.NUnit3;
 using EMG.Extensions.Logging.Loggly;
-using Moq;
 using NUnit.Framework;
 using WorldDomination.Net.Http;
 
@@ -17,8 +15,21 @@ namespace Tests.Loggly
     public class LogglyHttpClientTests
     {
         [Test, AutoMoqData]
-        public void Constructor_is_guarded(GuardClauseAssertion assertion)
+        public void Constructor_is_guarded(GuardClauseAssertion assertion, IFixture fixture)
         {
+            var registration = new HttpMessageOptions
+            {
+                HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
+                HttpMethod = HttpMethod.Post
+            };
+
+            var handler = new FakeHttpMessageHandler(registration);
+
+            fixture.Register((LogglyOptions o) => new HttpClient(handler)
+            {
+                BaseAddress = new Uri($"{o.LogglyScheme}://{o.LogglyHost}")
+            });
+
             assertion.Verify(typeof(LogglyHttpClient).GetConstructors());
         }
 
