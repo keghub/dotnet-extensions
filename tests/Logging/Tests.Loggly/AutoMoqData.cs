@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using AutoFixture;
@@ -28,9 +29,12 @@ namespace Tests
 
             fixture.Customize<HttpClient>(c => c.FromFactory((FakeHttpMessageHandler handler) => new HttpClient(handler)));
 
+            fixture.Customize<CookieContainer>(c => c.FromFactory(() => new CookieContainer()));
+
             fixture.Customize<LogglyOptions>(o => o
                                                   .Without(p => p.LogglyHost)
                                                   .Without(p => p.LogglyScheme)
+                                                  .Without(p => p.SerializerSettings)
                                                   .With(p => p.SuppressExceptions, false)
                                                   .With(p => p.ContentEncoding, Encoding.UTF8));
 

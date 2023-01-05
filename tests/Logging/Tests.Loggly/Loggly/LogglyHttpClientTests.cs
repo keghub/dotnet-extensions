@@ -16,7 +16,7 @@ namespace Tests.Loggly
     [TestFixture]
     public class LogglyHttpClientTests
     {
-        [Test, AutoData]
+        [Test, AutoMoqData]
         public void Constructor_is_guarded(GuardClauseAssertion assertion)
         {
             assertion.Verify(typeof(LogglyHttpClient).GetConstructors());
