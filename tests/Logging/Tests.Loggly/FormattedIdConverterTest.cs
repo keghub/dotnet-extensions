@@ -125,7 +125,6 @@ namespace Tests
             sut.WriteJson(writer, value, serializer);
 
             // Assert
-            // Write test Mock.Get(writer).Verify(i => i.WriteValue(value), Times.Once);
             Mock.Get(writer).Verify(i => i.WriteValue(Convert.ToString(value)), Times.Once);
         }
 
