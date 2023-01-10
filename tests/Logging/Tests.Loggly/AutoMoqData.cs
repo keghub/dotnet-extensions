@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using AutoFixture;
@@ -31,6 +32,7 @@ namespace Tests
             fixture.Customize<LogglyOptions>(o => o
                                                   .Without(p => p.LogglyHost)
                                                   .Without(p => p.LogglyScheme)
+                                                  .Without(p => p.SerializerSettings)
                                                   .With(p => p.SuppressExceptions, false)
                                                   .With(p => p.ContentEncoding, Encoding.UTF8));
 

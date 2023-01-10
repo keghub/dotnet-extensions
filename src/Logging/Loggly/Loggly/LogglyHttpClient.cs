@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -32,7 +31,7 @@ namespace EMG.Extensions.Logging.Loggly
             {
                 using (var request = new HttpRequestMessage(HttpMethod.Post, $"/inputs/{_options.ApiKey}/tag/{_options.Environment}"))
                 {
-                    var content = JsonConvert.SerializeObject(FixData(message), SerializerSettings);
+                    var content = JsonConvert.SerializeObject(FixData(message), _options.SerializerSettings);
                     request.Content = new StringContent(content, _options.ContentEncoding, "application/json");
 
                     using (var response = await _http.SendAsync(request).ConfigureAwait(false))
@@ -66,7 +65,7 @@ namespace EMG.Extensions.Logging.Loggly
                     tags.Add(_options.Environment);
                     request.Headers.Add("X-LOGGLY-TAG", tags);
 
-                    var fixedMessages = string.Join("\n", messages.Select(FixData).Select(s => JsonConvert.SerializeObject(s, SerializerSettings)));
+                    var fixedMessages = string.Join("\n", messages.Select(FixData).Select(s => JsonConvert.SerializeObject(s, _options.SerializerSettings)));
                     request.Content = new StringContent(fixedMessages, _options.ContentEncoding, "application/json");
 
                     using (var response = await _http.SendAsync(request).ConfigureAwait(false))
@@ -109,15 +108,5 @@ namespace EMG.Extensions.Logging.Loggly
                 Message = logglyMessage.Message
             };
         }
-
-        private static readonly JsonSerializerSettings SerializerSettings = new JsonSerializerSettings
-        {
-            TypeNameHandling = TypeNameHandling.None,
-            NullValueHandling = NullValueHandling.Ignore,
-            Formatting = Formatting.None,
-            DefaultValueHandling = DefaultValueHandling.Ignore,
-            DateTimeZoneHandling = DateTimeZoneHandling.Utc,
-            DateFormatHandling = DateFormatHandling.IsoDateFormat,
-        };
     }
 }
