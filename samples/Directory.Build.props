@@ -2,6 +2,7 @@
   <PropertyGroup>
     <RootNamespace>Samples</RootNamespace>
     <IsPackable>false</IsPackable>
+    <Configurations>Debug;Release;Verify</Configurations>
   </PropertyGroup>
 
 </Project>

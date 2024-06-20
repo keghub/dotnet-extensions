@@ -54,8 +54,21 @@ Task("Restore")
     DotNetCoreRestore(state.Paths.SolutionFile.ToString(), settings);
 });
 
-Task("Build")
+Task("Verify")
     .IsDependentOn("Restore")
+    .Does<BuildState>(state =>
+{
+    var settings = new DotNetCoreBuildSettings
+    {
+        Configuration = "Verify",
+        NoRestore = true
+    };
+
+    DotNetCoreBuild(state.Paths.SolutionFile.ToString(), settings);
+});
+
+Task("Build")
+    .IsDependentOn("Verify")
     .Does<BuildState>(state => 
 {
     var settings = new DotNetCoreBuildSettings
