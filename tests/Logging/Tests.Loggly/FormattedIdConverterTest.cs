@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using EMG.Extensions.Logging.Loggly.SerializerSettings;
 using NUnit.Framework;
 using Newtonsoft.Json;
 using Moq;
