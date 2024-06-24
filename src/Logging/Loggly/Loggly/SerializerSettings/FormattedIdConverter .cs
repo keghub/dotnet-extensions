@@ -1,6 +1,8 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
+
+namespace EMG.Extensions.Logging.Loggly.SerializerSettings;
 
 public class FormattedIdConverter : JsonConverter
 {

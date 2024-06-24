@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using EMG.Extensions.Logging.Loggly.SerializerSettings;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
