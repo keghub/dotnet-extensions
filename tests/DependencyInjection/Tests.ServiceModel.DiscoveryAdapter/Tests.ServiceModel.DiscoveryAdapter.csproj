@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.2;net48</TargetFrameworks>
+    <TargetFrameworks>net48</TargetFrameworks>
     <IsPackable>false</IsPackable>
     <RootNamespace>Tests</RootNamespace>
     <AssemblyName>Tests.ServiceModel.DiscoveryAdapter</AssemblyName>
